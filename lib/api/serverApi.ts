@@ -23,3 +23,18 @@ export const getMe = async (): Promise<User> => {
   const response = await api.get<User>('/users/me', { headers });
   return response.data;
 };
+
+export const fetchNotes = async (page = 1, perPage = 12, search = '', tag = 'all') => {
+  const headers = await getAuthHeaders();
+  const response = await api.get('/notes', { 
+    headers, 
+    params: { page, perPage, search, tag: tag === 'all' ? '' : tag } 
+  });
+  return response.data;
+};
+
+export const fetchNoteById = async (id: string) => {
+  const headers = await getAuthHeaders();
+  const response = await api.get(`/notes/${id}`, { headers });
+  return response.data;
+};

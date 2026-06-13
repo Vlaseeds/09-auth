@@ -30,3 +30,25 @@ export const updateMe = async (data: Partial<User>): Promise<User> => {
   const response = await api.patch<User>('/users/me', data);
   return response.data;
 };
+
+export const fetchNotes = async (page = 1, perPage = 12, search = '', tag = 'all') => {
+  const response = await api.get('/notes', { 
+    params: { page, perPage, search, tag: tag === 'all' ? '' : tag } 
+  });
+  return response.data;
+};
+
+export const fetchNoteById = async (id: string) => {
+  const response = await api.get(`/notes/${id}`);
+  return response.data;
+};
+
+export const createNote = async (note: any) => {
+  const response = await api.post('/notes', note);
+  return response.data;
+};
+
+export const deleteNote = async (id: string) => {
+  const response = await api.delete(`/notes/${id}`);
+  return response.data;
+};

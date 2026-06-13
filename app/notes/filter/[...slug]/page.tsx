@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getQueryClient } from '../../../../lib/getQueryClient';
-import { fetchNotes } from '../../../../lib/api';
+import { fetchNotes } from '../../../../lib/api/serverApi'; 
 import NotesClient from './Notes.client';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
