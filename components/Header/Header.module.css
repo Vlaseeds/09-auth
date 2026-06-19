@@ -40,3 +40,12 @@
 .navigationLink:hover {
   color: #ddd;
 }
+
+.menuList {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none; /* Эта строчка убивает черные точки */
+  margin: 0;
+  padding: 0;
+}
