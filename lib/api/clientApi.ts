@@ -4,13 +4,18 @@ import type { Note } from '@/types/note';
 
 interface AuthPayload {
   email: string;
-  password?: string;
-  [key: string]: unknown;
+  password: string;
 }
 
 interface NotePayload {
   title: string;
   content: string;
+  tag: string;
+}
+
+interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
   [key: string]: unknown;
 }
 
@@ -34,8 +39,8 @@ export const fetchNotes = async (
   perPage = 12, 
   search = '', 
   tag = 'all'
-): Promise<{ notes: Note[]; totalPages: number }> => {
-  const response = await api.get('/notes', { 
+): Promise<FetchNotesResponse> => {
+  const response = await api.get<FetchNotesResponse>('/notes', { 
     params: { page, perPage, search, tag: tag === 'all' ? '' : tag } 
   });
   return response.data;
@@ -65,7 +70,7 @@ export const logout = async (): Promise<void> => {
   await api.post('/auth/logout');
 };
 
-export const checkSession = async (): Promise<{ user: User } | unknown> => {
-  const response = await api.get('/auth/session');
+export const checkSession = async (): Promise<{ user: User }> => {
+  const response = await api.get<{ user: User }>('/auth/session');
   return response.data;
 };

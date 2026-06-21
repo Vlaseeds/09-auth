@@ -14,7 +14,7 @@ export default function NoteForm() {
   const { draft, setDraft, clearDraft } = useNoteStore();
 
   const mutation = useMutation({
-    mutationFn: (newNote: CreateNotePayload) => createNote(newNote as any),
+    mutationFn: (newNote: CreateNotePayload) => createNote(newNote),
     onSuccess: () => {
       clearDraft(); 
       queryClient.invalidateQueries({ queryKey: ['notes'] });
