@@ -14,12 +14,22 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
   let isAuthenticated = !!accessToken;
+  let responseHeaders = new Headers();
 
   if (!accessToken && refreshToken) {
     try {
-      const response = await checkSession();
-      if (response.status === 200) {
+      const sessionResponse = await checkSession();
+      if (sessionResponse.status === 200) {
         isAuthenticated = true;
+        
+        const setCookie = sessionResponse.headers['set-cookie'];
+        if (setCookie) {
+          if (Array.isArray(setCookie)) {
+            setCookie.forEach(cookie => responseHeaders.append('set-cookie', cookie));
+          } else {
+            responseHeaders.set('set-cookie', setCookie);
+          }
+        }
       }
     } catch (error) {
       isAuthenticated = false;
@@ -31,10 +41,14 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isPublicRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/profile', request.url));
+    const res = NextResponse.redirect(new URL('/', request.url));
+    responseHeaders.forEach((value, key) => res.headers.append(key, value));
+    return res;
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+  responseHeaders.forEach((value, key) => res.headers.append(key, value));
+  return res;
 }
 
 export const config = {

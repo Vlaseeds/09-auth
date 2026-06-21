@@ -1,11 +1,15 @@
 import { cookies } from 'next/headers';
 import { api } from './api';
-import type { User } from '../../types/user';
+import type { User } from '@/types/user';
+import type { Note } from '@/types/note';
 
 const getAuthHeaders = async () => {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value; 
-  return token ? { Cookie: `token=${token}` } : {};
+  const allCookies = cookieStore.toString(); 
+  
+  return {
+    Cookie: allCookies,
+  };
 };
 
 export const checkSession = async () => {
@@ -20,7 +24,12 @@ export const getMe = async (): Promise<User> => {
   return response.data;
 };
 
-export const fetchNotes = async (page = 1, perPage = 12, search = '', tag = 'all') => {
+export const fetchNotes = async (
+  page = 1, 
+  perPage = 12, 
+  search = '', 
+  tag = 'all'
+): Promise<{ notes: Note[]; totalPages: number }> => {
   const headers = await getAuthHeaders();
   const response = await api.get('/notes', { 
     headers, 
@@ -29,8 +38,8 @@ export const fetchNotes = async (page = 1, perPage = 12, search = '', tag = 'all
   return response.data;
 };
 
-export const fetchNoteById = async (id: string) => {
+export const fetchNoteById = async (id: string): Promise<Note> => {
   const headers = await getAuthHeaders();
-  const response = await api.get(`/notes/${id}`, { headers });
+  const response = await api.get<Note>(`/notes/${id}`, { headers });
   return response.data;
 };
