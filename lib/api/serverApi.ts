@@ -8,14 +8,10 @@ const getAuthHeaders = async () => {
   return token ? { Cookie: `token=${token}` } : {};
 };
 
-export const checkSession = async (): Promise<User | null> => {
-  try {
-    const headers = await getAuthHeaders();
-    const response = await api.get('/auth/session', { headers });
-    return response.data ? response.data : null;
-  } catch (error) {
-    return null;
-  }
+export const checkSession = async () => {
+  const headers = await getAuthHeaders();
+  const response = await api.get('/auth/session', { headers });
+  return response;
 };
 
 export const getMe = async (): Promise<User> => {

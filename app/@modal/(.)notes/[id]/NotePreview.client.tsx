@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -8,29 +8,24 @@ import css from './NotePreview.module.css';
 
 export default function NotePreviewClient({ id }: { id: string }) {
   const router = useRouter();
-  
-  const { data: note, isLoading } = useQuery({ 
-    queryKey: ['note', id], 
+
+  const { data: note, isLoading } = useQuery({
+    queryKey: ['note', id],
     queryFn: () => fetchNoteById(id),
-    refetchOnMount: false,
   });
+
+  if (isLoading) return <Modal onClose={() => router.back()}><div>Loading...</div></Modal>;
+  if (!note) return <Modal onClose={() => router.back()}><div>Note not found</div></Modal>;
 
   return (
     <Modal onClose={() => router.back()}>
-      {isLoading ? (
-        <p>Loading, please wait...</p>
-      ) : note ? (
-        <div className={css.item}>
-          <div className={css.header}>
-            <h2>{note.title}</h2>
-          </div>
-          <p className={css.tag}>{note.tag}</p>
-          <p className={css.content}>{note.content}</p>
-          <p className={css.date}>{new Date(note.createdAt).toLocaleDateString()}</p>
-        </div>
-      ) : (
-        <p>Something went wrong.</p>
-      )}
+      <div className={css.previewContainer}>
+        <h2>{note.title}</h2>
+        <p>{note.content}</p>
+        <button onClick={() => router.back()} className={css.closeButton}>
+          Close
+        </button>
+      </div>
     </Modal>
   );
 }

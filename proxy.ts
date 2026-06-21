@@ -1,21 +1,36 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { checkSession } from './lib/api/serverApi';
 
 const privateRoutes = ['/profile', '/notes'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get('token')?.value; 
+export async function proxy(request: NextRequest) {
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
   const { pathname } = request.nextUrl;
 
-  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
-  if (isPrivateRoute && !token) {
+  let isAuthenticated = !!accessToken;
+
+  if (!accessToken && refreshToken) {
+    try {
+      const response = await checkSession();
+      if (response.status === 200) {
+        isAuthenticated = true;
+      }
+    } catch (error) {
+      isAuthenticated = false;
+    }
+  }
+
+  if (isPrivateRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
-  if (isPublicRoute && token) {
+  if (isPublicRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/profile', request.url));
   }
 
@@ -23,5 +38,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
 };
